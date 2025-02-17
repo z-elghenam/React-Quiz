@@ -32,14 +32,16 @@ const initialState: State = {
   index: 0,
   answer: null,
   points: 0,
-  highscore: 0,
+  highscore: localStorage.getItem("highscore")
+    ? Number(localStorage.getItem("highscore"))
+    : 0,
   secondsRemaining: 0,
 };
 
 interface QuizContextValue extends State {
   numQuestions: number;
   maxPossiblePoints: number;
-  dispatch: Dispatch<Action>
+  dispatch: Dispatch<Action>;
 }
 
 const QuizContext = createContext<QuizContextValue | undefined>(undefined);
@@ -96,7 +98,12 @@ function reducer(state: State, action: Action): State {
           state.points > state.highscore ? state.points : state.highscore,
       };
     case "restart":
-      return { ...initialState, highscore: state.highscore, questions: state.questions, status: "ready" };
+      return {
+        ...initialState,
+        highscore: state.highscore,
+        questions: state.questions,
+        status: "ready",
+      };
 
     case "tick":
       return {
@@ -130,6 +137,10 @@ function QuizContextProvider({ children }: { children: ReactNode }) {
       )
       .catch(() => dispatch({ type: "dataFailed" }));
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("highscore", String(highscore));
+  }, [highscore]);
 
   return (
     <QuizContext.Provider
