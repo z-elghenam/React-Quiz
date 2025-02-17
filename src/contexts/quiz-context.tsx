@@ -1,5 +1,6 @@
 import {
   createContext,
+  Dispatch,
   useContext,
   useEffect,
   useReducer,
@@ -21,7 +22,7 @@ interface State {
   answer: number | null;
   points: number;
   highscore: number;
-  secondsRemaining: number | null;
+  secondsRemaining: number;
 }
 
 const initialState: State = {
@@ -32,13 +33,13 @@ const initialState: State = {
   answer: null,
   points: 0,
   highscore: 0,
-  secondsRemaining: null,
+  secondsRemaining: 0,
 };
 
 interface QuizContextValue extends State {
   numQuestions: number;
   maxPossiblePoints: number;
-  dispatch: React.Dispatch<Action>;
+  dispatch: Dispatch<Action>
 }
 
 const QuizContext = createContext<QuizContextValue | undefined>(undefined);
@@ -95,10 +96,9 @@ function reducer(state: State, action: Action): State {
           state.points > state.highscore ? state.points : state.highscore,
       };
     case "restart":
-      return { ...initialState, questions: state.questions, status: "ready" };
+      return { ...initialState, highscore: state.highscore, questions: state.questions, status: "ready" };
 
     case "tick":
-      if (state.secondsRemaining === null) return state;
       return {
         ...state,
         secondsRemaining: state.secondsRemaining - 1,
@@ -159,4 +159,5 @@ function useQuiz() {
   return context;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export { QuizContextProvider, useQuiz };
